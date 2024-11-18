@@ -1,7 +1,17 @@
-from datatypes import EntryList, Game, Player, Team, Venue, DefensePlay, Pitch, BatterBoxscore, PitcherBoxscore, GamefeedResponse
+from datatypes import EntryList, Game, Player, Team, Venue, DefensePlay, Pitch, BatterBoxscore, PitcherBoxscore, GamefeedResponse, GamefeedsResponse
 from utils import get_request_json
 
 def players(sport_id: int = 1, season: int = 2024) -> EntryList[Player]:
+    """
+    Fetches a list of players for a specific sport and season.
+
+    Parameters:
+        sport_id (int): The ID of the sport to fetch players for. Default is 1 (MLB).
+        season (int): The year of the season to fetch player data for. Default is 2024.
+
+    Returns:
+        EntryList[Player]: A list of Player objects.
+    """
     players_url = f"https://statsapi.mlb.com/api/v1/sports/{sport_id}/players"
     params = {
         'season': str(season),
@@ -16,19 +26,24 @@ def players(sport_id: int = 1, season: int = 2024) -> EntryList[Player]:
         birth_country=p.get('birthCountry'),
         height=p.get('height'),
         weight=p.get('weight'),
-        active=p.get('active'),
         current_team_id=p.get('currentTeam').get('id'),
         primary_position_code=p.get('primaryPosition').get('code'),
         primary_position_abbrev=p.get('primaryPosition').get('abbreviation'),
-        draft_year=p.get('draftYear'),
         bat_side=p.get('batSide').get('code'),
         pitch_hand=p.get('pitchHand').get('code'),
-        strike_zone_top=p.get('strikeZoneTop'),
-        strike_zone_bottom=p.get('strikeZoneBottom')
     ) for p in players_raw)
     return players_clean
 
 def teams() -> EntryList[Team]:
+    """
+    Fetches a list of teams for the MLB.
+
+    This function retrieves detailed team information such as name, season, 
+    venue, and league affiliation from the MLB Stats API.
+
+    Returns:
+        EntryList[Team]: A list of Team objects.
+    """
     teams_url = "https://statsapi.mlb.com/api/v1/teams"
     teams_raw = get_request_json(teams_url).get('teams')
     teams_clean = EntryList(Team(
@@ -53,6 +68,15 @@ def teams() -> EntryList[Team]:
     return teams_clean
 
 def venues() -> EntryList[Venue]:
+    """
+    Fetches a list of MLB venues with detailed field and location information.
+
+    This function retrieves information such as venue name, turf type, roof type, 
+    field dimensions, and location attributes from the MLB Stats API.
+
+    Returns:
+        EntryList[Venue]: A list of Venue objects.
+    """
     venues_url = "https://ws.statsapi.mlb.com/api/v1/venues?hydrate=fieldInfo,location"
     venues_raw = get_request_json(venues_url).get("venues", [])
     venues_clean = EntryList(
@@ -65,9 +89,9 @@ def venues() -> EntryList[Venue]:
             left=v.get('fieldInfo', {}).get('left'),
             left_center=v.get('fieldInfo', {}).get('leftCenter'),
             center=v.get('fieldInfo', {}).get('center'),
-            right_center=v.get('fieldInfo', {}).get('right_center'),
+            right_center=v.get('fieldInfo', {}).get('rightCenter'),
             right=v.get('fieldInfo', {}).get('right'),
-            right_line=v.get('fieldInfo', {}).get('right_line'),
+            right_line=v.get('fieldInfo', {}).get('rightLine'),
             azimuth_ange=v.get('location', {}).get('azimuthAngle'),
             elevation=v.get('location', {}).get('elevation'),
         ) for v in venues_raw
@@ -75,6 +99,17 @@ def venues() -> EntryList[Venue]:
     return venues_clean
 
 def defense_plays(entity_id: int, start_year: int, end_year: int | None) -> EntryList[DefensePlay]:
+    """
+    Fetches defensive plays data for a specified player over a given time range.
+
+    Parameters:
+        entity_id (int): The MLB.com ID of the player (fielder).
+        start_year (int): The starting year of the range to fetch data for.
+        end_year (int | None): The ending year of the range to fetch data for. If None, defaults to start_year.
+
+    Returns:
+        EntryList[DefensePlay]: A list of DefensePlay objects.
+    """
     if end_year == None:
         end_year = start_year
     plays_url = "https://baseballsavant.mlb.com/visuals/oaa-data"
@@ -102,7 +137,23 @@ def defense_plays(entity_id: int, start_year: int, end_year: int | None) -> Entr
     return plays_clean
 
 def gamefeed(game_id: int) -> GamefeedResponse:
-    gamefeed_url = f"https://ws.statsapi.mlb.com/api/v1.1/game/{game_id}/feed/live"
+    """
+    Fetches detailed game feed data for a specific MLB game.
+
+    This function retrieves game metadata, pitch-by-pitch details, and 
+    box score information for batters and pitchers.
+
+    Parameters:
+        game_id (int): The MLB.com ID of the game to fetch data for.
+
+    Returns:
+        GamefeedResponse: An object containing:
+            - game (Game): Metadata about the game, such as teams, venue, and weather.
+            - pitches (EntryList[Pitch]): Detailed data for each pitch in the game.
+            - batter_boxscores (EntryList[BatterBoxscore]): Box score data for all batters.
+            - pitcher_boxscores (EntryList[PitcherBoxscore]): Box score data for all pitchers.
+    """
+    gamefeed_url = f"https://statsapi.mlb.com/api/v1.1/game/{game_id}/feed/live"
     data = get_request_json(gamefeed_url)
     game_data = data.get("gameData", {})
     game_data_clean = Game(
@@ -165,7 +216,6 @@ def gamefeed(game_id: int) -> GamefeedResponse:
             "pitch_type": pitch_data.get("details", {}).get("type", {}).get("code"),
             "call": pitch_data.get("details", {}).get("call", {}).get("description"),
             "pitch_call": pitch_data.get("details", {}).get("call", {}).get("description"),
-            "is_strike_swinging": "Swinging Strike" == pitch_data.get("details", {}).get("call", {}).get("description"),
             "start_speed": pitch_data.get("pitchData", {}).get("startSpeed"),
             "extension": pitch_data.get("pitchData", {}).get("extension"),
             "zone": pitch_data.get("pitchData", {}).get("zone"),
@@ -176,9 +226,7 @@ def gamefeed(game_id: int) -> GamefeedResponse:
             "breakz": pitch_data.get("pitchData", {}).get("breaks", {}).get("breakVertical"),
             "inducedbreakz": pitch_data.get("pitchData", {}).get("breaks", {}).get("breakVerticalInduced"),
             "hit_speed": pitch_data.get("hitData", {}).get("launchSpeed"),
-            "xba": None,
             "hit_angle": pitch_data.get("hitData", {}).get("launchAngle"),
-            "is_barrel": None,
             "pitch_number": pitch_data.get("pitchNumber"),
             "gameid": game_id,
             "px": pitch_data.get("pitchData", {}).get("coordinates", {}).get("pX"),
@@ -264,3 +312,89 @@ def gamefeed(game_id: int) -> GamefeedResponse:
         pitcher_boxscores=pitcher_boxscores
     )
 
+def gamefeeds(game_ids: list[int]) -> GamefeedsResponse:
+    """
+    Fetches game feed data for multiple MLB games.
+
+    This function retrieves metadata, pitch-by-pitch details, and box score 
+    information for a list of specified games.
+
+    Parameters:
+        game_ids (list[int]): A list of MLB.com game IDs to fetch data for.
+
+    Returns:
+        GamefeedsResponse: An object containing aggregated data for all requested games:
+            - games (EntryList[Game]): Metadata for all games.
+            - pitches (EntryList[Pitch]): Combined pitch data for all games.
+            - batter_boxscores (EntryList[BatterBoxscore]): Box score data for all batters.
+            - pitcher_boxscores (EntryList[PitcherBoxscore]): Box score data for all pitchers.
+    """
+    responses: list[GamefeedResponse] = []
+    for g_id in game_ids:
+        responses.append(gamefeed(g_id))
+    games: EntryList[Game] = EntryList()
+    pitches: EntryList[Pitch] = EntryList()
+    batter_boxscores: EntryList[BatterBoxscore] = EntryList()
+    pitcher_boxscores: EntryList[PitcherBoxscore] = EntryList()
+    for r in responses:
+        games.append(r.game)
+        pitches += r.pitches
+        batter_boxscores += r.batter_boxscores
+        pitcher_boxscores += r.pitcher_boxscores
+    return GamefeedsResponse(
+        games=games,
+        pitches=pitches,
+        batter_boxscores=batter_boxscores,
+        pitcher_boxscores=pitcher_boxscores
+    )
+
+def schedule(start_date: str, end_date:str | None = None) -> EntryList[Game]:
+    """
+    Fetches the MLB game schedule for a specified date range.
+
+    This function retrieves detailed information about scheduled games, 
+    including participating teams, probable pitchers, venue, and weather conditions.
+
+    Parameters:
+        start_date (str): The starting date for the schedule (format: YYYY-MM-DD).
+        end_date (str | None): The ending date for the schedule. If None, defaults to start_date.
+
+    Returns:
+        EntryList[Game]: A list of Game objects containing metadata about the scheduled games.
+    """
+    schedule_url = f"https://statsapi.mlb.com/api/v1/schedule"
+    params = {
+        'sportId': 1,
+        'gameType': 'R',
+        'startDate': start_date,
+        'endDate': end_date if end_date else start_date,
+        'hydrate': 'team,probablePitcher,lineups,weather,scoringplays'
+    }
+    data = get_request_json(schedule_url, params)
+    clean_games: EntryList[Game] = EntryList()
+    for date in data.get('dates', []):
+        for g in date.get('games', []):
+            game_data_clean = Game(
+                id=g.get('gamePk'),
+                type=g.get('gameType'),
+                doubleheader=g.get('doubleHeader'),
+                season=g.get('seasonDisplay'),
+                game_date=g.get('officialDate'),
+                game_time=g.get('gameDate', '').split('T')[1],
+                status_code=g.get('status', {}).get('statusCode'),
+                home_team_id=g.get('teams', {}).get('home', {}).get("team", {}).get("id"),
+                away_team_id=g.get('teams', {}).get('away', {}).get("team", {}).get("id"),
+                home_team_name=g.get('teams', {}).get("home", {}).get("team", {}).get("name"),
+                away_team_name=g.get('teams', {}).get("away", {}).get("team", {}).get("name"),
+                venue_id=g.get('venue', {}).get("id"),
+                venue_name=g.get('venue', {}).get("name"),
+                weather_condition=g.get('weather', {}).get("condition"),
+                weather_temp=g.get('weather', {}).get("temp"),
+                weather_wind=g.get('weather', {}).get('wind'),
+                home_team_pitcher_id=g.get('teams', {}).get('home', {}).get('probablePitcher', {}).get('id'),
+                home_team_pitcher_name=g.get('teams', {}).get('home', {}).get('probablePitcher', {}).get('fullName'),
+                away_team_pitcher_id=g.get('teams', {}).get('away', {}).get('probablePitcher', {}).get('id'),
+                away_team_pitcher_name=g.get('teams', {}).get('away', {}).get('probablePitcher', {}).get('fullName'),
+            )
+            clean_games.append(game_data_clean)
+    return clean_games

@@ -1,5 +1,5 @@
 # mlb-data-fetch
-DataFrames, type-safety, and autocomplete for modern baseball analytics.
+DataFrames, type-safety, and plotting for modern baseball analytics.
 
 ## Philosophy & Goals
 - Expose useful endpoints and datasets (Savant Player Pages, OAA data by play, pitch by pitch statcast)
@@ -26,14 +26,7 @@ Andrew Abbot P
 | - | ------ | ------------ | ---------- | --------- | -------------- | --- |
 | 0 | 671096 | Andrew Abbot | Andrew     | Abbot     | 41             | ... |
 
-## Endpoints
-- statsapi players
-- statsapi teams
-- statsapi venues
-- statsapi gamefeed
-- savant defense plays
-
-## Future Supported Endpoints
+<!-- ## Future Supported Endpoints
 - savant player pages
 - savant park factors
-- statsapi schedule
+- statsapi schedule -->

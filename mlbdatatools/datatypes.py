@@ -16,66 +16,62 @@ class EntryList(List[GenericEntry], Generic[GenericEntry]):
 
 @dataclass
 class Player(Entry):
-    id: int
+    id: int # mlb.com player id
     full_name: str
     first_name: str
     last_name: str
     primary_number: str
     birth_country: str
-    height: str
-    weight: str
-    active: str
-    current_team_id: int
-    primary_position_code: str
-    primary_position_abbrev: str
-    draft_year: int
-    bat_side: str
-    pitch_hand: str
-    strike_zone_top: float
-    strike_zone_bottom: float
+    height: str # ft' in"
+    weight: int # lbs
+    current_team_id: int # team mlbam id
+    primary_position_code: str # 1 - 9, 10 (DH), O (OF), Y (TWP)
+    primary_position_abbrev: str # P, C, 1B, 2B, 3B, SS, LF, CF, RF, DH, OF, TWP
+    bat_side: str # L, R, or S
+    pitch_hand: str # L or R
 
 @dataclass
 class Team(Entry):
-    id: int
+    id: int # mlb.com player id
     name: str
-    season: int
-    venue_id: int
+    season: int # current season/most recent
+    venue_id: int # mlb.com venue id
     venue_name: str
-    team_code: str
+    team_code: str # mlb.com team code
     abbreviation: str
     team_name: str
     location_name: str
-    league_id: int
+    league_id: int # 103/104 for mlb teams (AL/NL)
     league_name: str
     division_id: int
     division_name: str
-    sport_id: int
+    sport_id: int # 1: MLB
     sport_name: str
-    parent_org_id: int | None
+    parent_org_id: int | None # parent organizations mlb.com team id
     parent_org_name: str | None
 
 @dataclass
 class Venue(Entry):
-    id: int
+    id: int # mlb.com venue id
     name: str
-    turf_type: str | None
-    roof_type: str | None
-    left_line: int | None
-    left: int | None
-    left_center: int | None
-    center: int | None
-    right_center: int | None
-    right: int | None
-    right_line: int | None
+    turf_type: str | None # Grass, Artificial Turf, etc...
+    roof_type: str | None # Open, Rectractable
+    left_line: int | None # not na for mlb venues
+    left: int | None # can be na for mlb venues
+    left_center: int | None # not na for mlb venues
+    center: int | None # not na for mlb venues
+    right_center: int | None # not na for mlb venues
+    right: int | None # can be na for mlb venues
+    right_line: int | None # not na for mlb venues
     azimuth_ange: int | None
     elevation: int | None
 
 @dataclass
 class Game(Entry):
-    id: int
-    type: str
+    id: int # mlb.com game id
+    type: str # R (Regular season), currently only regular season
     doubleheader: str
-    season: str
+    season: int
     game_date: date
     game_time: str
     status_code: str
@@ -95,20 +91,20 @@ class Game(Entry):
 
 @dataclass
 class DefensePlay(Entry):
-    fielder_id: str
+    fielder_id: str # mlb.com player id
     fielder_name: str
-    fielder_team_id: str
+    fielder_team_id: str # mlb.com team id
     fielder_position: int
-    year: str
+    year: str # plays are only known under mm/yy. No mapping to game, pitch, etc...
     month: str
-    est_success: float
-    outs_above_avg: float
-    runs_prevented: float
+    est_success: float # statcast est success rate
+    outs_above_avg: float # statcast outs above average for fielder
+    runs_prevented: float # statcast runs prevented for fielder
     is_out: bool
 
 @dataclass
 class Pitch(Entry):
-    id: int
+    id: str
     inning: int
     ab_number: int
     batter: int
@@ -125,7 +121,6 @@ class Pitch(Entry):
     pitch_type: str
     call: str
     pitch_call: str
-    is_strike_swinging: bool
     start_speed: float | None
     extension: float | None
     zone: int | None
@@ -136,9 +131,7 @@ class Pitch(Entry):
     breakz: float | None
     inducedbreakz: float | None
     hit_speed: float | None
-    xba: float | None
     hit_angle: float | None
-    is_barrel: bool | None
     pitch_number: int
     gameid: int
     px: float | None
@@ -207,6 +200,13 @@ class PitcherBoxscore(Entry):
 @dataclass
 class GamefeedResponse:
     game: Game
+    pitches: EntryList[Pitch]
+    batter_boxscores: EntryList[BatterBoxscore]
+    pitcher_boxscores: EntryList[PitcherBoxscore]
+
+@dataclass
+class GamefeedsResponse:
+    games: EntryList[Game]
     pitches: EntryList[Pitch]
     batter_boxscores: EntryList[BatterBoxscore]
     pitcher_boxscores: EntryList[PitcherBoxscore]
