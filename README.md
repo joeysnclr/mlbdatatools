@@ -8,9 +8,9 @@ DataFrames, type-safety, and plotting for modern baseball analytics.
 
 ## Example Usage
 ```py
-from mlbdatafetch import fetch
+from mlbdatafetch import mlbfetch
 
-all_players = fetch.players(sport_id=1, season=2024)
+all_players = mlbfetch.players(sport_id=1, season=2024)
 
 player = all_players[0]
 print(player.full_name, player.primary_position_code)
