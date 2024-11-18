@@ -1,4 +1,4 @@
-# mlb-data-fetch
+# mlb-data-tools
 DataFrames, type-safety, and plotting for modern baseball analytics.
 
 ## Philosophy & Goals
