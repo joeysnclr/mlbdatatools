@@ -1,4 +1,4 @@
-# mlb-data-tools
+# MLB Data Tools
 DataFrames, type-safety, and plotting for modern baseball analytics.
 
 ## Philosophy & Goals
