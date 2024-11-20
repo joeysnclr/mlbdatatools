@@ -6,6 +6,11 @@ DataFrames, type-safety, and plotting for modern baseball analytics.
 - Defined data schema/types
 - Easily convert to DataFrames
 
+## Installation
+```
+pip install mlbdatatools
+```
+
 ## Example Usage
 ```python
 from mlbdatatools import mlbfetch
