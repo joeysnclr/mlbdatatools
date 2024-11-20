@@ -1,5 +1,5 @@
-from datatypes import EntryList, Game, Player, Team, Venue, DefensePlay, Pitch, BatterBoxscore, PitcherBoxscore, GamefeedResponse, GamefeedsResponse
-from utils import get_request_json
+from .datatypes import EntryList, Game, Player, Team, Venue, DefensePlay, Pitch, BatterBoxscore, PitcherBoxscore, GamefeedResponse, GamefeedsResponse
+from .utils import get_request_json
 
 def players(sport_id: int = 1, season: int = 2024) -> EntryList[Player]:
     """
