@@ -7,26 +7,28 @@ DataFrames, type-safety, and plotting for modern baseball analytics.
 - Easily convert to DataFrames
 
 ## Example Usage
-```py
-from mlbdatafetch import mlbfetch
+```python
+from mlbdatatools import mlbfetch
 
-all_players = mlbfetch.players(sport_id=1, season=2024)
+# fetch opening day games for the 2024 season
+opening_day_games = mlbfetch.schedule("2024-03-28")
 
-player = all_players[0]
-print(player.full_name, player.primary_position_code)
+# print the home and away team names for the first game
+print(
+    opening_day_games[0].home_team_name,
+    opening_day_games[0].away_team_name
+)
 
-players_df = all_players.to_df()
-players_df.head(1)
+# convert the games to a pandas DataFrame for analysis
+games_df = opening_day_games.to_df()
+print(games_df.head())
+```
 
 ```
+Baltimore Orioles Los Angeles Angels
 ```
-Andrew Abbot P
-```
-|   | id     | full_name    | first_name | last_name | primary_number | ... |
-| - | ------ | ------------ | ---------- | --------- | -------------- | --- |
-| 0 | 671096 | Andrew Abbot | Andrew     | Abbot     | 41             | ... |
 
-<!-- ## Future Supported Endpoints
-- savant player pages
-- savant park factors
-- statsapi schedule -->
+|   | id     | type | doubleheader | season | game_date   | game_time  | status_code | home_team_id | away_team_id | home_team_name       | away_team_name        | venue_id | venue_name                     | weather_condition | weather_temp | weather_wind         | home_team_pitcher_id | home_team_pitcher_name | away_team_pitcher_id | away_team_pitcher_name |
+|---|--------|------|--------------|--------|-------------|------------|-------------|--------------|--------------|-----------------------|-----------------------|----------|--------------------------------|--------------------|--------------|----------------------|----------------------|------------------------|----------------------|------------------------|
+| 0 | 747060 | R    | N            | 2024   | 2024-03-28  | 19:05:00Z | F           | 110          | 108          | Baltimore Orioles     | Los Angeles Angels    | 2        | Oriole Park at Camden Yards    | Cloudy             | 54           | 9 mph, In From LF    | 669203               | Corbin Burnes          | 663776               | Patrick Sandoval       |
+
