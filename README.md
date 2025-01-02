@@ -37,3 +37,12 @@ Baltimore Orioles Los Angeles Angels
 |---|--------|------|--------------|--------|-------------|------------|-------------|--------------|--------------|-----------------------|-----------------------|----------|--------------------------------|--------------------|--------------|----------------------|----------------------|------------------------|----------------------|------------------------|
 | 0 | 747060 | R    | N            | 2024   | 2024-03-28  | 19:05:00Z | F           | 110          | 108          | Baltimore Orioles     | Los Angeles Angels    | 2        | Oriole Park at Camden Yards    | Cloudy             | 54           | 9 mph, In From LF    | 669203               | Corbin Burnes          | 663776               | Patrick Sandoval       |
 
+
+## Plotting
+```python
+from mlbdatatools import mlbfetch, mlbplot
+
+pitches_df = mlbfetch.gamefeed(747846).pitches.to_df()
+
+
+```

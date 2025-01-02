@@ -2,6 +2,10 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import numpy as np
 import pandas as pd
+from dataclasses import fields
+from datatypes import SavantBatterSeason
+from matplotlib.colors import Normalize
+from matplotlib.cm import ScalarMappable, get_cmap
 
 FIG_SIZE_X = 6
 FIG_SIZE_Y = 6
@@ -124,4 +128,63 @@ def spray_chart(df: pd.DataFrame | pd.Series, label_column='events'):
     ax.set_xlim(-20, 350)
     ax.set_ylim(-20, 350)
     
+    plt.show()
+
+def plot_savant_percentile_chart_dynamic(savant_season, title="MLB Percentile Rankings"):
+    """
+    Plots a Baseball Savant-style percentile chart dynamically based on a data instance.
+
+    Parameters:
+        savant_season (SavantBatterSeason): An instance containing percentile rankings and their corresponding values.
+        title (str): The title of the chart.
+    """
+    # Extract fields with `pct_rank` in their names
+    field_dict = {
+        f.name.replace("pct_rank_", "").replace("_", " ").capitalize(): 
+        (getattr(savant_season, f.name), getattr(savant_season, f.name.replace("pct_rank_", "")))
+        for f in fields(savant_season) if f.name.startswith("pct_rank_")
+    }
+    
+    # Sort fields for consistent ordering
+    field_dict = dict(sorted(field_dict.items(), key=lambda x: x[0]))
+    
+    categories = list(field_dict.keys())
+    percentiles = [v[0] * 100 for v in field_dict.values()]
+    values = [v[1] for v in field_dict.values()]
+
+    # Normalize the percentiles for the colormap
+    norm = Normalize(vmin=0, vmax=100)
+    cmap = get_cmap("coolwarm")  # Choose a gradient colormap
+    sm = ScalarMappable(norm=norm, cmap=cmap)
+
+    fig, ax = plt.subplots(figsize=(8, len(categories) * 0.5))
+
+    # Plotting bars with gradient colors
+    for i, (category, percentile, value) in enumerate(zip(categories, percentiles, values)):
+        color = cmap(norm(percentile))
+        ax.barh(i, percentile, color=color, alpha=0.8)
+        ax.text(percentile + 2, i, f"{value:.3f}" if isinstance(value, float) else str(value), 
+                va='center', ha='left', fontsize=10)
+        ax.text(-5, i, category, va='center', ha='right', fontsize=10, fontweight='bold')
+
+    # Add percentile ticks
+    ax.set_xlim(0, 100)
+    ax.set_xticks(range(0, 101, 10))
+    ax.set_xticklabels([f"{i}%" for i in range(0, 101, 10)], fontsize=9)
+
+    # Remove y ticks and labels
+    ax.set_yticks([])
+
+    # Add title
+    plt.title(title, fontsize=14, weight='bold')
+
+    # Add color bar for the gradient
+    cbar = plt.colorbar(sm, orientation="horizontal", pad=0.1, aspect=50)
+    cbar.set_label('Percentile', fontsize=10)
+
+    # Add gridlines for better readability
+    ax.grid(axis='x', linestyle='--', alpha=0.6)
+
+    plt.xlabel("Percentile", fontsize=10)
+    plt.tight_layout()
     plt.show()

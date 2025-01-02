@@ -11,6 +11,7 @@ class Entry:
         return pd.Series(self.__dict__)
 
 class EntryList(List[GenericEntry], Generic[GenericEntry]):
+    
     def to_df(self) -> pd.DataFrame:
         return pd.DataFrame([e.__dict__ for e in self])
 
@@ -198,7 +199,7 @@ class PitcherBoxscore(Entry):
     strikes: int
 
 @dataclass
-class GamefeedResponse:
+class GamefeedResponse():
     game: Game
     pitches: EntryList[Pitch]
     batter_boxscores: EntryList[BatterBoxscore]
@@ -210,3 +211,50 @@ class GamefeedsResponse:
     pitches: EntryList[Pitch]
     batter_boxscores: EntryList[BatterBoxscore]
     pitcher_boxscores: EntryList[PitcherBoxscore]
+
+@dataclass
+class SavantBatterSeason(Entry):
+    # Fields with percentile counterparts
+    barrel_batted_rate: float  # Barrels per plate appearance
+    pct_rank_barrel_batted_rate: float  # Percentile for barrel rate
+    xba: float  # Expected batting average
+    pct_rank_xba: float  # Percentile for xBA
+    hard_hit_rate: float  # Hard-hit rate (percentage)
+    pct_rank_hard_hit_rate: float  # Percentile for hard-hit rate
+    exit_velocity_avg: float  # Average exit velocity
+    pct_rank_exit_velocity_avg: float  # Percentile for average exit velocity
+    launch_angle_avg: float  # Average launch angle
+    pct_rank_launch_angle_avg: float  # Percentile for average launch angle
+    woba: float  # Weighted on-base average
+    pct_rank_woba: float  # Percentile for wOBA
+    xwoba: float  # Expected weighted on-base average
+    pct_rank_xwoba: float  # Percentile for xwOBA
+    sweet_spot_percent: float  # Sweet spot percentage
+    pct_rank_sweet_spot_percent: float  # Percentile for sweet spot percentage
+    groundballs_percent: float  # Groundballs percentage
+    pct_rank_groundballs_percent: float  # Percentile for groundballs percentage
+    babip: float  # Batting average on balls in play
+    pct_rank_babip: float  # Percentile for BABIP
+    obp: float  # On-base percentage
+    pct_rank_obp: float  # Percentile for OBP
+    slg: float  # Slugging percentage
+    pct_rank_slg: float  # Percentile for SLG
+    iso: float  # Isolated power
+    pct_rank_iso: float  # Percentile for ISO
+    bacon: float  # Batting average on contact
+    pct_rank_bacon: float  # Percentile for BACON
+    xbacon: float  # Expected batting average on contact
+    pct_rank_xbacon: float  # Percentile for XBACON
+    xslg: float  # Expected slugging percentage
+    pct_rank_xslg: float  # Percentile for XSLG
+    xiso: float  # Expected isolated power
+    pct_rank_xiso: float  # Percentile for XISO
+    avg_hyper_speed: float  # Average hyper speed
+    pct_rank_avg_hyper_speed: float  # Percentile for average hyper speed
+    avg_best_speed: float  # Average best speed
+    pct_rank_avg_best_speed: float  # Percentile for average best speed
+
+@dataclass
+class SavantBatterPage:
+    batter_id: int
+    savant_seasons: EntryList[SavantBatterSeason]
