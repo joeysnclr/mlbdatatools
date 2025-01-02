@@ -166,3 +166,4 @@ cython_debug/
 
 # ignore pynb file
 *.ipynb
+project_dump.txt
