@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List, TypeVar, Generic
 from datetime import date
 import pandas as pd
+import polars as pl
 
 GenericEntry = TypeVar('GenericEntry', bound='Entry')
 
@@ -12,8 +13,13 @@ class Entry:
 
 class EntryList(List[GenericEntry], Generic[GenericEntry]):
     
-    def to_df(self) -> pd.DataFrame:
-        return pd.DataFrame([e.__dict__ for e in self])
+    def to_pandas(self) -> pd.DataFrame:
+        data = [e.__dict__ for e in self]
+        return pd.DataFrame(data)
+
+    def to_polars(self) -> pl.DataFrame:
+        data = [e.__dict__ for e in self]
+        return pl.DataFrame(data)
 
 @dataclass
 class Player(Entry):
